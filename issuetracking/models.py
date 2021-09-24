@@ -50,6 +50,7 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=1000)
     type = models.CharField(max_length=255)
+    members = models.ManyToManyField(User, through='Contributor')
 
 
 class Contributor(models.Model):

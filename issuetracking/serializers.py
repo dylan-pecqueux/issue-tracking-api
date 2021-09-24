@@ -25,11 +25,10 @@ class ContributorSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributors = ContributorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'contributors']
+        fields = ['id', 'title', 'description', 'type', 'members']
         depth = 1
 
 
