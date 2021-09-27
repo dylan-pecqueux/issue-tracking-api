@@ -9,7 +9,7 @@ from .views import RegisterView, IssueView, ProjectView
 
 router = DefaultRouter()
 router.register(r'projects', ProjectView)
-router.register(r'projects/(?P<pk>\d+)/issues', IssueView)
+router.register(r'projects/(?P<project_id>\d+)/issues', IssueView)
 
 urlpatterns = [
     path('', include(router.urls)),
