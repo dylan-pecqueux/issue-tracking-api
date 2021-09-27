@@ -16,7 +16,7 @@ class RegisterView(APIView):
         return Response(serializer.data)
 
 
-class ProjectDetailView(viewsets.ViewSet):
+class ProjectView(viewsets.ViewSet):
     queryset = Project.objects.all()
 
     def create(self, request):
@@ -60,11 +60,11 @@ class ProjectDetailView(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
         
 
-class IssueView(APIView):
+class IssueView(viewsets.ViewSet):
 
-    permission_classes = [IsAuthenticated, IsContributorPermission]
+    queryset = Issue.objects.all()
 
-    def post(self, request, pk):
+    def create(self, request, pk):
         project = get_object_or_404(Project, pk=pk)
         self.check_object_permissions(self.request, project)
         request.data['project'] = project.pk
@@ -76,9 +76,16 @@ class IssueView(APIView):
         serializer.save()
         return Response(serializer.data)
     
-    def get(self, request, pk):
+    def list(self, request, pk):
         obj = Project.objects.get(pk=pk)
         self.check_object_permissions(self.request, obj)
         issues = Issue.objects.filter(project=pk)
         serializer = IssueSerializer(issues, many=True)
         return Response(serializer.data)
+
+    def get_permissions(self):
+        if self.action == 'create' or self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated, IsContributorPermission]
+        else:
+            permission_classes = [IsAuthenticated, IsContributorPermission, IsAuthorPermission]
+        return [permission() for permission in permission_classes]
