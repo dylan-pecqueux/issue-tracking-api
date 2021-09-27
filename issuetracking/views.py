@@ -65,14 +65,15 @@ class IssueView(APIView):
     permission_classes = [IsAuthenticated, IsContributorPermission]
 
     def post(self, request, pk):
-        obj = Project.objects.get(pk=pk)
-        self.check_object_permissions(self.request, obj)
-        request.data['project'] = obj.pk
+        project = get_object_or_404(Project, pk=pk)
+        self.check_object_permissions(self.request, project)
+        request.data['project'] = project.pk
         request.data['author'] = request.user.pk
-        request.data['assignee'] = request.user.pk
+        if 'assignee' not in request.data:
+            request.data['assignee'] = request.user.pk
         serializer = IssueSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(project=obj)
+        serializer.save()
         return Response(serializer.data)
     
     def get(self, request, pk):
