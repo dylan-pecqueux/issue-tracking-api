@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, BasePermission
-from rest_framework import generics
-from .serializers import UserSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, viewsets
+from .serializers import UserSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer, ProjectDetailSerializer
 from .models import Issue, Project, Contributor
+from .permissions import IsContributorPermission, IsAuthorPermission
 
 
 class RegisterView(APIView):
@@ -14,40 +16,53 @@ class RegisterView(APIView):
         return Response(serializer.data)
 
 
-class ProjectView(APIView):
-    
-    permission_classes = [IsAuthenticated]
+class ProjectDetailView(viewsets.ViewSet):
+    queryset = Project.objects.all()
 
-    def post(self, request):
+    def create(self, request):
         serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_project = serializer.save()
         new_project.contributor_set.create(permission='R', role='author', user=request.user)
         return Response(serializer.data)
 
-    def get(self, request):
-        projects = Project.objects.all()
-        serializer = ProjectSerializer(projects, many=True)
+    def list(self, request):
+        serializer = ProjectSerializer(self.queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        project = get_object_or_404(self.queryset, pk=pk)
+        self.check_object_permissions(self.request, project)
+        serializer = ProjectDetailSerializer(project)
+        return Response(serializer.data)
 
-class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    def update(self, request, pk=None):
+        project = get_object_or_404(self.queryset, pk=pk)
+        self.check_object_permissions(self.request, project)
+        serializer = ProjectSerializer(project, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
+    def destroy(self, request, pk=None):
+        project = get_object_or_404(self.queryset, pk=pk)
+        self.check_object_permissions(self.request, project)
+        project.delete()
+        return Response(status=204)
 
-class IssuePermission(BasePermission):
-    message = 'Access not allowed ! Only contributors of the project can access'
-
-    def has_object_permission(self, request, view, obj):
-        in_project = Contributor.objects.filter(project=obj, user=request.user)
-        return len(in_project) != 0
+    def get_permissions(self):
+        if self.action == 'create' or self.action == 'list':
+            permission_classes = [IsAuthenticated]
+        elif self.action == 'retrieve':
+            permission_classes = [IsAuthenticated, IsContributorPermission]
+        else:
+            permission_classes = [IsAuthenticated, IsContributorPermission, IsAuthorPermission]
+        return [permission() for permission in permission_classes]
         
 
 class IssueView(APIView):
 
-    permission_classes = [IsAuthenticated, IssuePermission]
+    permission_classes = [IsAuthenticated, IsContributorPermission]
 
     def post(self, request, pk):
         obj = Project.objects.get(pk=pk)

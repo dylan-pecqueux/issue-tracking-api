@@ -50,7 +50,6 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=1000)
     type = models.CharField(max_length=255)
-    members = models.ManyToManyField(User, through='Contributor')
 
 
 class Contributor(models.Model):
@@ -61,12 +60,15 @@ class Contributor(models.Model):
     role = models.CharField(max_length=255)
 
 class Issue(models.Model):
+    PRIORITY_CHOICES = [('F', 'FAIBLE'), ('M', 'MOYENNE'), ('E', 'ELEVEE')]
+    TAG_CHOICES = [('BUG', 'BUG'), ('AMELIORATION', 'AMELIORATION'), ('TACHE', 'TACHE')]
+    STATUS_CHOICES = [('AF', 'à faire'), ('EC', 'en cours'), ('T', 'terminé')]
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    tag = models.CharField(max_length=255)
-    priority = models.CharField(max_length=255)
+    tag = models.CharField(max_length=255, choices=TAG_CHOICES)
+    priority = models.CharField(max_length=255, choices=PRIORITY_CHOICES)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
-    status = models.CharField(max_length=255)
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES)
     author = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="author")
     assignee = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="assignee")
     created_time = models.DateTimeField(auto_now_add=True)

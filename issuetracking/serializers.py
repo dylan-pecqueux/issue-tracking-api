@@ -19,16 +19,26 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ContributorSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = Contributor
-        fields = ['id', 'user', 'project', 'permission', 'role']
+        fields = ['id', 'project', 'user', 'permission', 'role']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'members']
+        fields = ['id', 'title', 'description', 'type']
+
+
+class ProjectDetailSerializer(serializers.ModelSerializer):
+    contributors = ContributorSerializer(source='contributor_set', many=True)
+
+    class Meta:
+        model = Project
+        fields = ['id', 'title', 'description', 'type', 'contributors']
         depth = 1
 
 
