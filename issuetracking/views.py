@@ -139,7 +139,18 @@ class ContributorView(viewsets.ViewSet):
         serializer.save()
         return Response(serializer.data)
 
-    
+    def list(self, request, project_id):
+        self.check_object_permissions(self.request, self.get_queryset())
+        contributors = self.get_queryset().contributor_set
+        serializer = ContributorSerializer(contributors, many=True)
+        return Response(serializer.data)
+
+    def destroy(self, request, project_id, pk=None):
+        contributor = get_object_or_404(self.queryset, pk=pk)
+        self.check_object_permissions(self.request, self.get_queryset())
+        contributor.delete()
+        return Response(status=204)
+
     def get_queryset(self):
         project_id = self.kwargs['project_id']
         return get_object_or_404(Project, id=project_id)
@@ -148,5 +159,5 @@ class ContributorView(viewsets.ViewSet):
         if self.action == 'list':
             permission_classes = [IsAuthenticated, IsContributorPermission]
         else:
-            permission_classes = [IsAuthenticated, IsAuthorProjectPermission]
+            permission_classes = [IsAuthenticated, IsContributorPermission, IsAuthorProjectPermission]
         return [permission() for permission in permission_classes]
