@@ -40,15 +40,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'type']
 
 
-class ProjectDetailSerializer(serializers.ModelSerializer):
-    contributors = ContributorSerializer(source='contributor_set', many=True)
-
-    class Meta:
-        model = Project
-        fields = ['id', 'title', 'description', 'type', 'contributors']
-        depth = 1
-
-
 class IssueDetailSerializer(serializers.ModelSerializer):
     author = UserSerializer()
     assignee = UserSerializer()
@@ -64,6 +55,16 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = ['id', 'title', 'description', 'tag', 'priority', 'status', 'project', 'author', 'assignee']
+
+
+class ProjectDetailSerializer(serializers.ModelSerializer):
+    contributors = ContributorSerializer(source='contributor_set', many=True)
+    issues = IssueSerializer(source='issue_set', many=True)
+
+    class Meta:
+        model = Project
+        fields = ['id', 'title', 'description', 'type', 'issues', 'contributors']
+        depth = 1
 
 
 class IssueUpdateSerializer(serializers.ModelSerializer):
