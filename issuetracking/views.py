@@ -11,10 +11,13 @@ from .serializers import (
     IssueSerializer, 
     ProjectDetailSerializer, 
     IssueDetailSerializer, 
-    IssueUpdateSerializer
+    IssueUpdateSerializer,
+    CommentSerializer,
+    CommentDetailSerializer,
+    CommentUpdateSerializer
     )
-from .models import Issue, Project, Contributor
-from .permissions import IsContributorPermission, IsAuthorProjectPermission, IsAuthorIssuePermission
+from .models import Issue, Project, Contributor, Comment
+from .permissions import IsContributorPermission, IsAuthorProjectPermission, IsAuthorIssuePermission, IsAuthorCommentPermission
 
 
 class RegisterView(APIView):
@@ -160,4 +163,55 @@ class ContributorView(viewsets.ViewSet):
             permission_classes = [IsAuthenticated, IsContributorPermission]
         else:
             permission_classes = [IsAuthenticated, IsContributorPermission, IsAuthorProjectPermission]
+        return [permission() for permission in permission_classes]
+
+
+class CommentView(viewsets.ViewSet):
+
+    queryset = Comment.objects.all()
+
+    def create(self, request, project_id, issue_id):
+        self.check_object_permissions(self.request, project_id)
+        request.data['author'] = request.user.pk
+        request.data['issue'] = issue_id
+        serializer = CommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def retrieve(self, request, project_id, issue_id, pk=None):
+        comment = get_object_or_404(Comment, pk=pk)
+        self.check_object_permissions(self.request, project_id)
+        serializer = CommentDetailSerializer(comment)
+        return Response(serializer.data)
+
+    def list(self, request, project_id, issue_id):
+        comments = self.get_queryset().comment_set
+        self.check_object_permissions(self.request, project_id)
+        serializer = CommentDetailSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def update(self, request, project_id, issue_id, pk=None):
+        comment = get_object_or_404(Comment, pk=pk)
+        self.check_object_permissions(self.request, comment)
+        serializer = CommentUpdateSerializer(comment, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def destroy(self, request, project_id, issue_id, pk=None):
+        comment = get_object_or_404(Comment, pk=pk)
+        self.check_object_permissions(self.request, comment)
+        comment.delete()
+        return Response(status=204)
+
+    def get_queryset(self):
+        issue_id = self.kwargs['issue_id']
+        return get_object_or_404(Issue, id=issue_id)
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'create' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated, IsContributorPermission]
+        else:
+            permission_classes = [IsAuthenticated, IsAuthorCommentPermission]
         return [permission() for permission in permission_classes]

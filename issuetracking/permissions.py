@@ -1,4 +1,4 @@
-from .models import Issue, Project, Contributor
+from .models import Issue, Project, Contributor, Comment
 from rest_framework.permissions import IsAuthenticated, BasePermission
 
 
@@ -23,7 +23,14 @@ class IsAuthorIssuePermission(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         is_author = Issue.objects.get(pk=obj.pk)
-        print("!!!!!!!!")
-        print(request.user)
-        print(is_author.author)
         return is_author.author == request.user
+
+
+class IsAuthorCommentPermission(BasePermission):
+    message = 'Access not allowed ! Only the author can access'
+
+    def has_object_permission(self, request, view, obj):
+        is_author = Comment.objects.get(pk=obj.pk)
+        project = is_author.issue.project
+        contributor = Contributor.objects.filter(project=project, user=request.user)
+        return len(contributor) != 0 and is_author.author == request.user
