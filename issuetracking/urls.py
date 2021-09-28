@@ -4,12 +4,13 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import RegisterView, IssueView, ProjectView
+from .views import RegisterView, IssueView, ProjectView, ContributorView
 
 
 router = DefaultRouter()
 router.register(r'projects', ProjectView)
 router.register(r'projects/(?P<project_id>\d+)/issues', IssueView)
+router.register(r'projects/(?P<project_id>\d+)/users', ContributorView)
 
 urlpatterns = [
     path('', include(router.urls)),

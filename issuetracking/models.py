@@ -59,6 +59,9 @@ class Contributor(models.Model):
     permission = models.CharField(max_length=255, choices=PERMISSION_CHOICES)
     role = models.CharField(max_length=255)
 
+    class Meta:
+        unique_together = ('project', 'user')
+
 class Issue(models.Model):
     PRIORITY_CHOICES = [('F', 'FAIBLE'), ('M', 'MOYENNE'), ('E', 'ELEVEE')]
     TAG_CHOICES = [('BUG', 'BUG'), ('AMELIORATION', 'AMELIORATION'), ('TACHE', 'TACHE')]

@@ -3,7 +3,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, viewsets
-from .serializers import UserSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer, ProjectDetailSerializer, IssueDetailSerializer, IssueUpdateSerializer
+from .serializers import (
+    UserSerializer, 
+    ProjectSerializer, 
+    ContributorSerializer,
+    ContributorCreateSerializer,
+    IssueSerializer, 
+    ProjectDetailSerializer, 
+    IssueDetailSerializer, 
+    IssueUpdateSerializer
+    )
 from .models import Issue, Project, Contributor
 from .permissions import IsContributorPermission, IsAuthorProjectPermission, IsAuthorIssuePermission
 
@@ -114,4 +123,30 @@ class IssueView(viewsets.ViewSet):
             permission_classes = [IsAuthenticated, IsContributorPermission]
         else:
             permission_classes = [IsAuthenticated, IsAuthorIssuePermission]
+        return [permission() for permission in permission_classes]
+
+
+class ContributorView(viewsets.ViewSet):
+
+    queryset = Contributor.objects.all()
+
+    def create(self, request, project_id):
+        project = self.get_queryset()
+        self.check_object_permissions(self.request, project)
+        request.data['project'] = project.id
+        serializer = ContributorCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return get_object_or_404(Project, id=project_id)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAuthenticated, IsContributorPermission]
+        else:
+            permission_classes = [IsAuthenticated, IsAuthorProjectPermission]
         return [permission() for permission in permission_classes]
