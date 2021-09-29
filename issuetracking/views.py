@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
 from .serializers import (
     UserSerializer, 
     ProjectSerializer, 
@@ -39,7 +39,8 @@ class ProjectView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def list(self, request):
-        serializer = ProjectSerializer(self.queryset, many=True)
+        user_projects = self.queryset.filter(contributor__user=request.user)
+        serializer = ProjectSerializer(user_projects, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
