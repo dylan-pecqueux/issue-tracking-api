@@ -15,7 +15,7 @@ router.register(r'projects/(?P<project_id>\d+)/issues/(?P<issue_id>\d+)/comments
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('register', RegisterView.as_view()),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('signup/', RegisterView.as_view()),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

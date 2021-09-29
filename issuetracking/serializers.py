@@ -47,7 +47,6 @@ class IssueDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = ['id', 'title', 'description', 'tag', 'priority', 'status', 'project', 'author', 'assignee']
-        depth = 1
 
 
 class IssueSerializer(serializers.ModelSerializer):
