@@ -28,6 +28,15 @@ class RegisterView(APIView):
         return Response(serializer.data)
 
 
+class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        request.user.is_active = False
+        request.user.delete()
+        return Response(status=204)
+
+
 class ProjectView(viewsets.ViewSet):
     queryset = Project.objects.all()
 
