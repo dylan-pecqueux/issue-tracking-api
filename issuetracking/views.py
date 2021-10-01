@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from .models import Issue, Project, Contributor, Comment
 from .serializers import (
     UserSerializer, 
     ProjectSerializer, 
@@ -16,11 +17,16 @@ from .serializers import (
     CommentDetailSerializer,
     CommentUpdateSerializer
     )
-from .models import Issue, Project, Contributor, Comment
-from .permissions import IsContributorPermission, IsAuthorProjectPermission, IsAuthorIssuePermission, IsAuthorCommentPermission
+from .permissions import (
+    IsContributorPermission,
+    IsAuthorProjectPermission,
+    IsAuthorIssuePermission,
+    IsAuthorCommentPermission
+    )
 
 
 class RegisterView(APIView):
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -29,6 +35,7 @@ class RegisterView(APIView):
 
 
 class UserView(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
@@ -38,6 +45,7 @@ class UserView(APIView):
 
 
 class ProjectView(viewsets.ViewSet):
+
     queryset = Project.objects.all()
 
     def create(self, request):
@@ -80,7 +88,7 @@ class ProjectView(viewsets.ViewSet):
         else:
             permission_classes = [IsAuthenticated, IsContributorPermission, IsAuthorProjectPermission]
         return [permission() for permission in permission_classes]
-        
+
 
 class IssueView(viewsets.ViewSet):
 
