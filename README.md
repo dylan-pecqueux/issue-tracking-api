@@ -1,6 +1,6 @@
 # Issue Tracking
 
-[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com) https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white
 
 
 Projet 10 de la formation DA Python de OpenClassrooms qui consiste à créer une API RESTFul en utilisant le framework Django Rest Framework, permettant de de créer des projets dans lesquels des utilisateurs (contributeurs) peuvent créer des problèmes et les commenter.  
