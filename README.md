@@ -13,6 +13,8 @@ La documentation de l'api est disponible [ici](https://documenter.getpostman.com
 - Créer un environnement virtuel : ``python3 -m venv env``
 - Activer l'environnement virtuel : ``source env/bin/activate``
 - Installer les packages : ``pip install -r requirements.txt``
+- Générer une secret_key : [Djecrety](https://djecrety.ir/)
+- Créer un fichier .env à la racine du projet et y mettre la clé généré dans une variable SECRET_KEY
 
 ## Démarrage
 
@@ -22,7 +24,7 @@ La documentation de l'api est disponible [ici](https://documenter.getpostman.com
 ## Comptes utilisateurs test 
 
 * Accès Admin :  
-    - email : admin@admin.fr  
+    - email : a@a.fr  
     - password : azerty
 
 * Comptes utilisateur :  
