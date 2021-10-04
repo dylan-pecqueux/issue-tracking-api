@@ -137,7 +137,7 @@ class IssueView(viewsets.ViewSet):
 
     def get_queryset(self):
         project_id = self.kwargs['project_id']
-        return Project.objects.get(id=project_id)
+        return get_object_or_404(id=project_id)
 
     def get_permissions(self):
         if self.action == 'create' or self.action == 'list' or self.action == 'retrieve':
